@@ -58,9 +58,9 @@ group by GENERO
 -- Creating a temp_table to check the changes before replacing the '' and '-' values from GENERO to 'NO REPORTA'
 with TEMP_TABLE_1 as(
 select	replace(
-				coalesce(nullif(GENERO,''), 'NO REPORTA') -- Replaces '' empty strings
-				,'-','NO REPORTA') -- Replaces '-' 
-				as	GENERO_CLEANED
+			coalesce(nullif(GENERO,''), 'NO REPORTA') -- Replaces '' empty strings
+			,'-','NO REPORTA') -- Replaces '-' 
+			as	GENERO_CLEANED
 from	Cleaning_Project..Delitos_sexuales_policia_nacional
 )
 select	distinct(GENERO_CLEANED), count(GENERO_CLEANED)
@@ -82,9 +82,9 @@ group by GENERO_CLEANED
 -- Updating GENERO
 update Cleaning_Project..Delitos_sexuales_policia_nacional
 set GENERO=replace(
-				coalesce(nullif(GENERO,''), 'NO REPORTA') -- Replaces '' empty strings
-				,'-','NO REPORTA') -- Replaces '-' 
-				)
+			coalesce(nullif(GENERO,''), 'NO REPORTA') -- Replaces '' empty strings
+			,'-','NO REPORTA') -- Replaces '-' 
+			)
 
 
 
