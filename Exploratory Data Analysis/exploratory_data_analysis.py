@@ -29,7 +29,7 @@ crime_data = pd.read_csv("database.csv") # importing the database
 #%% 
 
 # =============================================================================
-# A look up into the dataset, there are 10 columns containing the information 
+# A look up into the dataset, there are 11 columns containing the information 
 # of the place where the crime took place and basic info about the victim that 
 # would help to explore de data and what it has to say about the crime rate
 # en each geographical division within the country as well as the gender/age
@@ -49,7 +49,7 @@ crime_data.info()
 # DATA PREPARATION
 # =============================================================================
 
-crime_data.rename(columns={"FECHA HECHO":"FECHA","ARMAS MEDIOS":"ARMA"}, inplace=True) # simplyfing names
+crime_data.rename(columns={"FECHA HECHO":"FECHA","ARMAS MEDIOS":"ARMA"}, inplace=True) # simplifying names
 crime_data.isnull().sum() # There are 2 missing values
 crime_data=crime_data.dropna() # The number is low so both rows with missing values will be dropped
 
@@ -153,24 +153,20 @@ ax.set_title("Crime reports distribution by department per 1000 inhabitants")
 #%%
 
 #MUNICIPIO
-# =============================================================================
 # Making a distribution of the top 10 municipalities with the highest amount of
 # crime rate.
-#
+
 # CODIGO DANE  is used instead of MUNICIPIO as there are places with the same 
 # name but with different CODIGO DANE number.
-# =============================================================================
 
 crime_by_municipality=crime_data.groupby(['CODIGO DANE','GENERO'])['GENERO'].count().unstack()
 crime_by_municipality['TOTAL']=crime_data.groupby(['CODIGO DANE'])['GENERO'].count().values
 crime_by_municipality=crime_by_municipality.nlargest(10,'TOTAL').reset_index()
-crime_by_municipality['CODIGO DANE']=crime_by_municipality['CODIGO DANE'].astype(int)
+
 
 # Making a dict to replace each CODIGO DANE for its equivalent in MUNICIPIO name
 aux=crime_data[['CODIGO DANE','MUNICIPIO']]
-aux['CODIGO DANE']=aux['CODIGO DANE'].astype(int)
-aux.drop_duplicates(inplace=True)
-aux_dict=aux.set_index('CODIGO DANE').to_dict()['MUNICIPIO']
+aux_dict=aux.drop_duplicates().set_index('CODIGO DANE').to_dict()['MUNICIPIO']
 crime_by_municipality.replace({'CODIGO DANE':aux_dict},inplace=True)
 crime_by_municipality.rename(columns={'CODIGO DANE':'MUNICIPIO'},inplace=True)
 
@@ -226,7 +222,7 @@ crime_by_year.replace({'MONTH':dict},inplace=True)
 
 
 #%% Facets Grid showing the differences between years
-fig, ax=plt.subplots(dpi=150)
+#fig, ax=plt.subplots(dpi=150)
 sns.set_theme(style="darkgrid")
 g=sns.relplot(data=crime_by_year[crime_by_year['YEAR']<2021],
               x='MONTH',y='VALUE',col='YEAR',col_wrap=3,
@@ -235,7 +231,7 @@ g=sns.relplot(data=crime_by_year[crime_by_year['YEAR']<2021],
 
 for year, ax in g.axes_dict.items():
     #Change titles
-    ax.text(0.8,0.85,year, transform=ax.transAxes, fontweight="bold",size=20)
+    ax.text(0.85,0.85,year, transform=ax.transAxes, fontweight="bold",size=20)
     #Add preexisting 
     sns.lineplot(
     data=crime_by_year[crime_by_year['YEAR']<2021], x="MONTH", y="VALUE", units="YEAR",
@@ -346,7 +342,7 @@ for bar in ax.patches:
 
 ax.set_ylim(top=110)
 ax.yaxis.set_major_formatter(PercentFormatter(100))
-ax.set_title('TOP #5 of number of criminals distribution in crime reports')
+ax.set_title('TOP #5 from amount of criminals involved in crime reports')
 ax.set_xlabel("# of criminals")
 ax.set_ylabel("")
 plt.show()
