@@ -385,5 +385,3 @@ ax.set_title('TOP #5 law ingringment')
 ax.set_xlabel("")
 ax.set_ylabel("")
 plt.show()
-
-#sdfgsedrgsergwergwerg
