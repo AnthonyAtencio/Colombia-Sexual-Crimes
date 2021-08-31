@@ -246,3 +246,142 @@ ax.set_xticks(ax.get_xticks()[::2])
 g.set_titles('')
 g.set_axis_labels("", "Crime reports")
 g.tight_layout()
+
+#%% GENERO
+# Plotting to check which gender is the most affected 
+crime_by_gender=crime_data.groupby('GENERO').size().reset_index(name='VALUE')
+# Percentage of total reported crimes by gender
+crime_by_gender['VALUE']=crime_by_gender['VALUE']/crime_by_gender['VALUE'].sum()*100 
+
+
+fig, ax=plt.subplots(dpi=150)
+sns.set_theme(style="whitegrid")
+sns.barplot(data=crime_by_gender,x='GENERO',y='VALUE')
+
+for bar in ax.patches:
+   
+  # Using Matplotlib's annotate function and
+  # passing the coordinates where the annotation shall be done
+  # x-coordinate: bar.get_x() + bar.get_width() / 2
+  # y-coordinate: bar.get_height()
+  # free space to be left to make graph pleasing: (0, 8)
+  # ha and va stand for the horizontal and vertical alignment
+    ax.annotate(format(bar.get_height(), '.2f')+"%",
+                   (bar.get_x() + bar.get_width() / 2,
+                    bar.get_height()), ha='center', va='center',
+                   size=10, xytext=(0, 3),
+                   textcoords='offset points',fontweight="bold")
+
+ax.set_ylim(top=100)
+ax.yaxis.set_major_formatter(PercentFormatter(100))
+ax.set_title('Genders distribution in crime reports')
+ax.set_xlabel("Genders")
+ax.set_ylabel("")
+plt.show()
+
+
+#%% GRUPO.ETARIO
+# Plot distribution by each age group and see which one is the most affected
+
+crime_by_age_group=crime_data.groupby('GRUPO ETARIO').size().reset_index(name='VALUE')
+
+crime_by_age_group['VALUE']=crime_by_age_group['VALUE']/crime_by_age_group['VALUE'].sum()*100 
+
+
+fig, ax=plt.subplots(dpi=150)
+sns.set_theme(style="whitegrid")
+sns.barplot(data=crime_by_age_group,
+            x='GRUPO ETARIO',y='VALUE',
+            order=crime_by_age_group.sort_values('VALUE',ascending=False)['GRUPO ETARIO'])
+
+
+for bar in ax.patches:
+   
+  # Using Matplotlib's annotate function and
+  # passing the coordinates where the annotation shall be done
+  # x-coordinate: bar.get_x() + bar.get_width() / 2
+  # y-coordinate: bar.get_height()
+  # free space to be left to make graph pleasing: (0, 8)
+  # ha and va stand for the horizontal and vertical alignment
+    ax.annotate(format(bar.get_height(), '.2f')+"%",
+                   (bar.get_x() + bar.get_width() / 2,
+                    bar.get_height()), ha='center', va='center',
+                   size=12, xytext=(0, 5),
+                   textcoords='offset points',fontweight="bold")
+
+ax.set_ylim(top=100)
+ax.yaxis.set_major_formatter(PercentFormatter(100))
+ax.set_title('Victim age group  distribution in crime reports')
+ax.set_xlabel("")
+ax.set_ylabel("")
+ax.tick_params(axis='x', rotation=70)
+plt.show()
+
+#%% CANTIDAD
+# Plot to check the amount of people accused of the crime.
+
+crime_by_criminal_amount=crime_data.groupby('CANTIDAD').size().reset_index(name='VALUE')
+
+crime_by_criminal_amount['VALUE']=crime_by_criminal_amount['VALUE']/crime_by_criminal_amount['VALUE'].sum()*100 
+
+
+fig, ax=plt.subplots(dpi=150)
+sns.set_theme(style="whitegrid")
+sns.barplot(data=crime_by_criminal_amount.iloc[0:5],
+            x='CANTIDAD',y='VALUE',
+            order=crime_by_criminal_amount.iloc[0:5].sort_values('VALUE',ascending=False)['CANTIDAD'])
+for bar in ax.patches:
+   
+  # Using Matplotlib's annotate function and
+  # passing the coordinates where the annotation shall be done
+  # x-coordinate: bar.get_x() + bar.get_width() / 2
+  # y-coordinate: bar.get_height()
+  # free space to be left to make graph pleasing: (0, 8)
+  # ha and va stand for the horizontal and vertical alignment
+    ax.annotate(format(bar.get_height(), '.2f')+"%",
+                   (bar.get_x() + bar.get_width() / 2,
+                    bar.get_height()), ha='center', va='center',
+                   size=12, xytext=(0, 5),
+                   textcoords='offset points',fontweight="bold")
+
+ax.set_ylim(top=110)
+ax.yaxis.set_major_formatter(PercentFormatter(100))
+ax.set_title('TOP #5 of number of criminals distribution in crime reports')
+ax.set_xlabel("# of criminals")
+ax.set_ylabel("")
+plt.show()
+
+#%% DELITO
+# Plot to see the most common law infridgment by general and by department.
+
+
+crime_by_infringement=crime_data.groupby('DELITO').size().reset_index(name='VALUE')
+crime_by_infringement['VALUE']=crime_by_infringement['VALUE']/crime_by_infringement['VALUE'].sum()*100 
+crime_by_infringement['DELITO']=crime_by_infringement['DELITO'].str.partition(sep='.')[0] # Trimming the law description down to only the article number.
+
+fig, ax=plt.subplots(dpi=150)
+sns.set_theme(style="whitegrid")
+sns.barplot(data=crime_by_infringement.iloc[0:5],
+            x='DELITO',y='VALUE',
+            order=crime_by_infringement.iloc[0:5].sort_values('VALUE',ascending=False)['DELITO'])
+for bar in ax.patches:
+   
+  # Using Matplotlib's annotate function and
+  # passing the coordinates where the annotation shall be done
+  # x-coordinate: bar.get_x() + bar.get_width() / 2
+  # y-coordinate: bar.get_height()
+  # free space to be left to make graph pleasing: (0, 8)
+  # ha and va stand for the horizontal and vertical alignment
+    ax.annotate(format(bar.get_height(), '.2f')+"%",
+                   (bar.get_x() + bar.get_width() / 2,
+                    bar.get_height()), ha='center', va='center',
+                   size=12, xytext=(0, 5),
+                   textcoords='offset points',fontweight="bold")
+
+ax.tick_params(axis='x', rotation=70)
+ax.set_ylim(top=50)
+ax.yaxis.set_major_formatter(PercentFormatter(100))
+ax.set_title('TOP #5 law ingringment')
+ax.set_xlabel("")
+ax.set_ylabel("")
+plt.show()
