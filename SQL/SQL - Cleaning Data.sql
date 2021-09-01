@@ -1,13 +1,5 @@
 -- ## Cleaning data in SQL for database [Delitos_sexuales_policia_nacional]
 
-
---#DATASET DESCRIPTION  
---In this dataset you can find information on sexual crimes from January 01,
---2010 to May 31, 2021.
---Source: DIJIN - National Police. Data extracted on June 14, 2021 at 18:00
---hours. 18:00 hours.
---URL:  https://www.datos.gov.co/Seguridad-y-Defensa/Reporte-Delitos-sexuales-Polic-a-Nacional/fpe5-yrmw
-
 --#Variables:
 -- DEPARTAMENTO=Department/State where crime took place.
 -- MUNICIPIO=City/Municipality where crime took place.
