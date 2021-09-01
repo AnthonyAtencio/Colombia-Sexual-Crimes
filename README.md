@@ -10,13 +10,13 @@ First the data is partially cleaned and prepared in SQL([link to query script](h
 
 ## Variables on the dataset
 
-DEPARTAMENTO=Department/State where crime took place.
-MUNICIPIO=City/Municipality where crime took place.
-CODIGO.DANE= City/Municipality ID in DANE(National Administrative Department of Statistics, Spanish: Departamento Administrativo Nacional de Estadística)
-ARMAS.MEDIOS= Weapon used.
-FECHA.HECHO= Date of report.
-GENERO= Gender.
-GRUPO.ETARIO= Age group.
-CANTIDAD= Amount of criminals involved.
-DELITO= Official crime category by law.
+- DEPARTAMENTO=Department/State where crime took place.
+- MUNICIPIO=City/Municipality where crime took place.
+- CODIGO.DANE= City/Municipality ID in DANE(National Administrative Department of Statistics, Spanish: Departamento Administrativo Nacional de Estadística)
+- ARMAS.MEDIOS= Weapon used.
+- FECHA.HECHO= Date of report.
+- GENERO= Gender.
+- GRUPO.ETARIO= Age group.
+- CANTIDAD= Amount of criminals involved.
+- DELITO= Official crime category by law.
 
