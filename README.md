@@ -4,19 +4,13 @@ In this project I analyze the database of sexual crimes in Colombia in the years
 
 
 
-First the data is partially cleaned and prepared in SQL([link to query script](https://github.com/AnthonyAtencioM/Colombia-Sex-Crimes/blob/main/SQL/SQL%20-%20Cleaning%20Data.sql)). The database is exported and worked on Python where libraries as pandas, matplotlib and seaborn are used to make an Exploratory Data Analysis and take a better understanding on the state of sexual crimes in the country.
+First the data is partially cleaned and prepared in SQL. The database is exported and worked on Python where libraries as pandas, matplotlib and seaborn are used to make an Exploratory Data Analysis and take a better understanding on the state of sexual crimes in the country.
 
 
 
-## Variables on the dataset
+## Contents
 
-- DEPARTAMENTO=Department/State where crime took place.
-- MUNICIPIO=City/Municipality where crime took place.
-- CODIGO.DANE= City/Municipality ID in DANE(National Administrative Department of Statistics, Spanish: Departamento Administrativo Nacional de Estadística)
-- ARMAS.MEDIOS= Weapon used.
-- FECHA.HECHO= Date of report.
-- GENERO= Gender.
-- GRUPO.ETARIO= Age group.
-- CANTIDAD= Amount of criminals involved.
-- DELITO= Official crime category by law.
+- [SQL query script](https://github.com/AnthonyAtencioM/Colombia-Sex-Crimes/blob/main/SQL/SQL%20-%20Cleaning%20Data.sql)  
+- [Python script](https://github.com/AnthonyAtencioM/Colombia-Sex-Crimes/blob/main/Exploratory%20Data%20Analysis/exploratory_data_analysis.py)
+- [Jupyter notebook](https://github.com/AnthonyAtencioM/Colombia-Sex-Crimes/blob/main/Exploratory%20Data%20Analysis/Notebook_EDA.ipynb)
 
