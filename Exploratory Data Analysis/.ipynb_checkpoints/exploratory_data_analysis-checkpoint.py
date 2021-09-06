@@ -20,27 +20,27 @@
 #%%
 import pandas as pd
 import matplotlib.pyplot as plt
-from matplotlib.ticker import PercentFormatter
+from  matplotlib.ticker import PercentFormatter
 import seaborn as sns
 
 
-crime_data = pd.read_csv('database.csv')  # importing the database
+crime_data = pd.read_csv("database.csv") # importing the database
 
-#%%
+#%% 
 
 # =============================================================================
-# A look up into the dataset, there are 11 columns containing the information
-# of the place where the crime took place and basic info about the victim that
+# A look up into the dataset, there are 11 columns containing the information 
+# of the place where the crime took place and basic info about the victim that 
 # would help to explore de data and what it has to say about the crime rate
 # en each geographical division within the country as well as the gender/age
-# group that it's the most affected.
+# group that it's the most affected. 
 # =============================================================================
 
 crime_data.head()
 crime_data.describe()
 crime_data.describe(include=object)
 
-# Some columns' type will be changed to 'category', 'int' and 'datetime' as
+# Some columns' type will be changed to 'category', 'int' and 'datetime' as 
 # seen convenient
 crime_data.info()
 
@@ -49,48 +49,25 @@ crime_data.info()
 # DATA PREPARATION
 # =============================================================================
 
-crime_data.rename(columns={"FECHA HECHO": "FECHA",
-                  "ARMAS MEDIOS": "ARMA"}, inplace=True)  # simplifying names
-crime_data.isnull().sum()  # There are 2 missing values
-# The number is low so both rows with missing values will be dropped
-crime_data.dropna(inplace=True)
+crime_data.rename(columns={"FECHA HECHO":"FECHA","ARMAS MEDIOS":"ARMA"}, inplace=True) # simplifying names
+crime_data.isnull().sum() # There are 2 missing values
+crime_data=crime_data.dropna() # The number is low so both rows with missing values will be dropped
 
-# All Colombia's departments names are in the dataset without any misspelled duplicate.
-set(crime_data["DEPARTAMENTO"])
+set(crime_data["DEPARTAMENTO"]) # All Colombia's departments names are in the dataset without any misspelled duplicate.
 
 # Changing columns to category type
 
-columns = ["DEPARTAMENTO", "MUNICIPIO", "GENERO", "GRUPO ETARIO",
-           "DELITO", "ARMA", "CANTIDAD", "ARTICULO - DELITO", "MUNICIPIO-CODIGO DANE"]
+columns=["DEPARTAMENTO","MUNICIPIO","GENERO","GRUPO ETARIO",
+         "DELITO","ARMA","CANTIDAD","ARTICULO - DELITO","MUNICIPIO-CODIGO DANE"]
 for i in columns:
-    crime_data[i] = crime_data[i].astype("category")
+    crime_data.loc[i]=crime_data[i].astype("category")
 
 #CODIGO.DANE should be a factor as it is an ID assigned for each city/municipality.
-#before hand it will be converted to INT so remove its decimals
-crime_data["CODIGO DANE"] = crime_data["CODIGO DANE"].astype(
-    int).astype("category")
+#before hand it will be converted to INT so remove its decimals 
+crime_data["CODIGO DANE"]=crime_data["CODIGO DANE"].astype(int).astype("category") 
 
 #FECHA is changed from factor to date class
-crime_data["FECHA"] = pd.to_datetime(crime_data["FECHA"])
-
-#GENERO with translated categories
-
-dict={'NO REPORTA':'NOT REPORTED','MASCULINO':'MALE','FEMENINO':'FEMALE'}
-crime_data['GENERO'].replace(dict,inplace=True)
-# ARMA with translated categories
-
-dict={'SIN EMPLEO DE ARMAS':'NO USE OF WEAPONS','NOT REPORTEDDO':'NOT REPORTED',
-     'CONTUNDENTES':'BLUNT','ARMA BLANCA / CORTOPUNZANTE':'SHARP WEAPON',
-     'ESCOPOLAMINA':'SCOPOLAMINE','ARMA DE FUEGO':'FIREARM',
-     'LICOR ADULTERADO':'ADULTERATED LIQUOR','CINTAS/CINTURON':'BELTS',
-     'ESPOSAS':'HANDCUFFS'}
-crime_data['ARMA'].replace(dict,inplace=True)
-
-#GRUPO ETARIO with trasnlated categories
-dict={'ADOLESCENTES':'ADOLESCENTS','ADULTOS':'ADULTS','MENORES':'MINORS','NO REPORTA':'NOT REPORTED'}
-crime_data['GRUPO ETARIO'].replace(dict,inplace=True)
-
-
+crime_data["FECHA"]=pd.to_datetime(crime_data["FECHA"])
 
 #CANTIDAD
 crime_data["CANTIDAD"].value_counts()
@@ -109,24 +86,24 @@ crime_by_department=crime_data.groupby(['DEPARTAMENTO','GENERO'])['GENERO'].coun
 crime_by_department=crime_by_department.fillna(0)
 
 #Now create a new column with the total of reports by each department
-crime_by_department['TOTAL']=crime_by_department['FEMALE']+crime_by_department['MALE']+crime_by_department['NOT REPORTED']
+crime_by_department['TOTAL']=crime_by_department['FEMENINO']+crime_by_department['MASCULINO']+crime_by_department['NO REPORTA']
 crime_by_department=crime_by_department.sort_values('TOTAL',ascending=False) # Sort TOTAL in decreasing order
 
 # Horizontal bar graph showing the distribution of crimes by department and gender
 sns.set_theme(style="ticks")
 fig,ax = plt.subplots(figsize=(7,7),dpi=100)
 sns.set_color_codes("muted")
-sns.barplot(x="NOT REPORTED",y=crime_by_department.index.values,
+sns.barplot(x="NO REPORTA",y=crime_by_department.index.values,
             data=crime_by_department,color='y',label='NOT REPORTED',
             order=crime_by_department.index.values)
-sns.barplot(x="MALE",y=crime_by_department.index.values,
+sns.barplot(x="MASCULINO",y=crime_by_department.index.values,
             data=crime_by_department,color='b',
-            left=crime_by_department['NOT REPORTED'],label='MALE',
+            left=crime_by_department['NO REPORTA'],label='MALE',
             order=crime_by_department.index.values)
 sns.set_color_codes("pastel")
-sns.barplot(x="FEMALE",y=crime_by_department.index.values,
+sns.barplot(x="FEMENINO",y=crime_by_department.index.values,
             data=crime_by_department,color='r',
-            left=crime_by_department['MALE'],label='FEMALE',
+            left=crime_by_department['MASCULINO'],label='FEMALE',
             order=crime_by_department.index.values)
 ax.legend(loc='lower right')
 ax.set_xlabel("# of reported crimes")
@@ -134,10 +111,10 @@ ax.set_title("Crime reports distribution by department and gender")
 
 
 
-#%%
+#%% 
 # =============================================================================
 # Now a new graph is made to see the crime reports per 1000 inhabitants but
-# first the data of each Department is neededInhabitants by department, Census
+# first the data of each Department is neededInhabitants by department, Census 
 # year 2018.
 # Source: https://sitios.dane.gov.co/cnpv/#!/
 # =============================================================================
@@ -179,7 +156,7 @@ ax.set_title("Crime reports distribution by department per 1000 inhabitants")
 # Making a distribution of the top 10 municipalities with the highest amount of
 # crime rate.
 
-# CODIGO DANE  is used instead of MUNICIPIO as there are places with the same
+# CODIGO DANE  is used instead of MUNICIPIO as there are places with the same 
 # name but with different CODIGO DANE number.
 
 crime_by_municipality=crime_data.groupby(['CODIGO DANE','GENERO'])['GENERO'].count().unstack()
@@ -202,10 +179,15 @@ ax.set_xlabel("# of reported crimes")
 ax.set_title("Top #10 of municipalities with highest crime reports")
 
 
-#%%
-# ARMA
+#%% 
+# ARMAS
 # Making a plot of the most used weapons
-
+ 
+dict={'SIN EMPLEO DE ARMAS':'NO USE OF WEAPONS','NO REPORTADO':'NOT REPORTED',
+      'CONTUNDENTES':'BLUNT','ARMA BLANCA / CORTOPUNZANTE':'SHARP WEAPON',
+      'ESCOPOLAMINA':'SCOPOLAMINE','ARMA DE FUEGO':'FIREARM',
+      'LICOR ADULTERADO':'ADULTERATED LIQUOR','CINTAS/CINTURON':'BELTS',
+      'ESPOSAS':'HANDCUFFS'}
 weapons_total=crime_data.groupby('ARMA')['ARMA'].count()
 weapons_total.sort_values(inplace=True,ascending=False)
 weapons_total.rename(index=dict,inplace=True)
@@ -216,52 +198,6 @@ ax.set_ylabel('')
 ax.set_xlabel('# of reported crimes associated with the weapon')
 ax.set_title('Weapon usage in crimes')
 
-
-#%% Making plot to check if the no use of weapon is related to the age group of the victim
-
-weapon_by_age_group=crime_data.groupby(['GRUPO ETARIO','ARMA'])['ARMA'].count().rename('VALUE').reset_index()
-weapon_by_age_group=weapon_by_age_group.query('`ARMA`=="NO USE OF WEAPONS"')
-
-fig, ax=plt.subplots(dpi=150)
-sns.set_theme(style="whitegrid")
-sns.barplot(data=weapon_by_age_group,
-            x=weapon_by_age_group.VALUE,y=weapon_by_age_group["GRUPO ETARIO"],ci=None,
-            order=weapon_by_age_group.sort_values('VALUE',ascending=False)['GRUPO ETARIO'])
-ax.set_ylabel('')
-ax.set_xlabel('# of reported crimes associated')
-ax.set_title('Crime reports by age group where no weapon was used')
-
-#%% Now cheking which of the adults victims are distributed by gender and no weapon was used
-noweapon_by_gender=crime_data.groupby(['GRUPO ETARIO','ARMA','GENERO'])['GENERO'].count().rename('VALUE').reset_index()
-noweapon_by_gender=noweapon_by_gender.query('`ARMA`=="NO USE OF WEAPONS" & `GRUPO ETARIO`=="ADULTS"')
-
-fig, ax=plt.subplots(dpi=150)
-sns.set_theme(style="whitegrid")
-sns.barplot(data=noweapon_by_gender,
-            x=noweapon_by_gender.VALUE,y=noweapon_by_gender["GENERO"])
-ax.set_ylabel('')
-ax.set_xlabel('# of reported crimes associated')
-ax.set_title('Crime reports by gender where no weapon was used against an adult')
-
-#%% Now same as before but trying to see if in the use of weapons there is any difference
-
-sharp_weapon_by_gender=crime_data.groupby(['GRUPO ETARIO','ARMA','GENERO'])['GENERO'].count().rename('VALUE').reset_index()
-sharp_weapon_by_gender=sharp_weapon_by_gender.query('`ARMA`=="SHARP WEAPON" & `GRUPO ETARIO`=="ADULTS"')
-
-fig, ax=plt.subplots(dpi=150)
-sns.set_theme(style="whitegrid")
-sns.barplot(data=noweapon_by_gender,
-            x=noweapon_by_gender.VALUE,y=noweapon_by_gender["GENERO"])
-ax.set_ylabel('')
-ax.set_xlabel('# of reported crimes associated')
-ax.set_title('Crime reports by gender where no weapon was used against an adult')
-
-#%%
-
-weapon_by_gender=crime_data.groupby(['GRUPO ETARIO','ARMA','GENERO'])['GENERO'].count().rename('VALUE').reset_index()
-weapon_by_gender.query('`GRUPO ETARIO`=="ADULTS"')
-sns.catplot(data=weapon_by_gender, x="GENERO", y="VALUE",col="ARMA", col_wrap=2,
-            saturation=.5,kind="bar", ci=None)
 
 #%%
 #FECHA
@@ -288,23 +224,23 @@ g=sns.relplot(data=crime_by_year[crime_by_year['YEAR']<2021],
 for year, ax in g.axes_dict.items():
     #Change titles
     ax.text(0.85,0.85,year, transform=ax.transAxes, fontweight="bold",size=20)
-    #Add preexisting
+    #Add preexisting 
     sns.lineplot(
     data=crime_by_year[crime_by_year['YEAR']<2021], x="MONTH", y="VALUE", units="YEAR",
     estimator=None, color=".7", linewidth=1, ax=ax)
     ax.grid(axis='y')
-
+    
 ax.set_xticks(ax.get_xticks()[::2])
 g.set_titles('')
 g.set_axis_labels("", "Crime reports")
 g.tight_layout()
 
 #%% GENERO
-# Plotting to check which gender is the most affected
+# Plotting to check which gender is the most affected 
 crime_by_gender=crime_data.groupby('GENERO').size().reset_index(name='VALUE')
 # Percentage of total reported crimes by gender
-crime_by_gender['VALUE']=crime_by_gender['VALUE']/crime_by_gender['VALUE'].sum()*100
-
+crime_by_gender['VALUE']=crime_by_gender['VALUE']/crime_by_gender['VALUE'].sum()*100 
+crime_by_gender.replace({'GENERO':{'NO REPORTA':'NOT REPORTED','MASCULINO':'MALE','FEMENINO':'FEMALE'}},inplace=True)
 
 fig, ax=plt.subplots(dpi=150)
 
@@ -312,7 +248,7 @@ sns.set_theme(style="whitegrid")
 sns.barplot(data=crime_by_gender,x='GENERO',y='VALUE')
 
 for bar in ax.patches:
-
+   
     ax.annotate(format(bar.get_height(), '.2f')+"%",
                    (bar.get_x() + bar.get_width() / 2,
                     bar.get_height()), ha='center', va='center',
@@ -332,8 +268,8 @@ plt.show()
 
 crime_by_age_group=crime_data.groupby('GRUPO ETARIO').size().reset_index(name='VALUE')
 
-crime_by_age_group['VALUE']=crime_by_age_group['VALUE']/crime_by_age_group['VALUE'].sum()*100
-
+crime_by_age_group['VALUE']=crime_by_age_group['VALUE']/crime_by_age_group['VALUE'].sum()*100 
+crime_by_age_group.replace({'ADOLESCENTES':'ADOLESCENTS','ADULTOS':'ADULTS','MENORES':'MINORS','NO REPORTA':'NOT REPORTED'},inplace=True)
 
 fig, ax=plt.subplots(dpi=150,figsize=(7,2))
 sns.set_theme(style="whitegrid")
@@ -343,7 +279,7 @@ sns.barplot(data=crime_by_age_group,
 
 sns.set_theme(style="whitegrid")
 for bar in ax.patches:
-
+   
     ax.annotate(format(bar.get_height(), '.2f')+"%",
                     (bar.get_x() + bar.get_width() / 2,
                     bar.get_height()), ha='center', va='center',
@@ -359,7 +295,7 @@ ax.tick_params(axis='x')
 plt.show()
 
 #%% CANTIDAD
-# This one doesn't require a plot because more than 90% of the crime reports
+# This one doesn't require a plot because more than 90% of the crime reports 
 # were done by a single criminal
 crime_by_criminal_amount=crime_data.groupby('CANTIDAD').size().reset_index(name='VALUE')
 crime_by_criminal_amount['VALUE']=crime_by_criminal_amount['VALUE']/crime_by_criminal_amount['VALUE'].sum()*100
@@ -371,7 +307,7 @@ print(crime_by_criminal_amount.head(5))
 
 
 crime_by_infringement=crime_data.groupby('DELITO').size().reset_index(name='VALUE')
-crime_by_infringement['VALUE']=crime_by_infringement['VALUE']/crime_by_infringement['VALUE'].sum()*100
+crime_by_infringement['VALUE']=crime_by_infringement['VALUE']/crime_by_infringement['VALUE'].sum()*100 
 crime_by_infringement['DELITO']=crime_by_infringement['DELITO'].str.partition(sep='.')[0] # Trimming the law description down to only the article number.
 
 fig, ax=plt.subplots(dpi=150)
@@ -380,7 +316,7 @@ sns.barplot(data=crime_by_infringement.iloc[0:5],
             x='DELITO',y='VALUE',
             order=crime_by_infringement.iloc[0:5].sort_values('VALUE',ascending=False)['DELITO'])
 for bar in ax.patches:
-
+   
   # Using Matplotlib's annotate function and
   # passing the coordinates where the annotation shall be done
   # x-coordinate: bar.get_x() + bar.get_width() / 2
@@ -400,16 +336,3 @@ ax.set_title('TOP #5 law ingringment')
 ax.set_xlabel("")
 ax.set_ylabel("")
 plt.show()
-
-# %%
-
-
-# %%
-
-# %%
-
-# %%
-
-# %%
-
-# %%
