@@ -14,3 +14,4 @@ First the data is partially cleaned and prepared in SQL. The database is exporte
 - [Python script](https://github.com/AnthonyAtencioM/Colombia-Sex-Crimes/blob/main/Exploratory%20Data%20Analysis/exploratory_data_analysis.py)
 - [Jupyter notebook](https://github.com/AnthonyAtencioM/Colombia-Sex-Crimes/blob/main/Exploratory%20Data%20Analysis/Notebook_EDA.ipynb)
 
+# Colombia-Sexual-Crimes
