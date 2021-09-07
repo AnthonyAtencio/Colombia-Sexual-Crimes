@@ -19,9 +19,14 @@
 # =============================================================================
 #%%
 import pandas as pd
+import numpy as np
+import datetime
+import seaborn as sns
 import matplotlib.pyplot as plt
 from matplotlib.ticker import PercentFormatter
-import seaborn as sns
+import matplotlib.dates as mdates
+
+
 
 
 crime_data = pd.read_csv('database.csv')  # importing the database
@@ -79,7 +84,7 @@ dict={'NO REPORTA':'NOT REPORTED','MASCULINO':'MALE','FEMENINO':'FEMALE'}
 crime_data['GENERO'].replace(dict,inplace=True)
 # ARMA with translated categories
 
-dict={'SIN EMPLEO DE ARMAS':'NO USE OF WEAPONS','NOT REPORTEDDO':'NOT REPORTED',
+dict={'SIN EMPLEO DE ARMAS':'NO USE OF WEAPONS','NO REPORTADO':'NOT REPORTED',
      'CONTUNDENTES':'BLUNT','ARMA BLANCA / CORTOPUNZANTE':'SHARP WEAPON',
      'ESCOPOLAMINA':'SCOPOLAMINE','ARMA DE FUEGO':'FIREARM',
      'LICOR ADULTERADO':'ADULTERATED LIQUOR','CINTAS/CINTURON':'BELTS',
@@ -89,8 +94,6 @@ crime_data['ARMA'].replace(dict,inplace=True)
 #GRUPO ETARIO with trasnlated categories
 dict={'ADOLESCENTES':'ADOLESCENTS','ADULTOS':'ADULTS','MENORES':'MINORS','NO REPORTA':'NOT REPORTED'}
 crime_data['GRUPO ETARIO'].replace(dict,inplace=True)
-
-
 
 #CANTIDAD
 crime_data["CANTIDAD"].value_counts()
@@ -231,40 +234,42 @@ ax.set_ylabel('')
 ax.set_xlabel('# of reported crimes associated')
 ax.set_title('Crime reports by age group where no weapon was used')
 
-#%% Now cheking which of the adults victims are distributed by gender and no weapon was used
-noweapon_by_gender=crime_data.groupby(['GRUPO ETARIO','ARMA','GENERO'])['GENERO'].count().rename('VALUE').reset_index()
-noweapon_by_gender=noweapon_by_gender.query('`ARMA`=="NO USE OF WEAPONS" & `GRUPO ETARIO`=="ADULTS"')
+#%% Here I plot the percentage of usage for each weapon category  for age group and for adults it would be broken down to men and women
+#First I will gather de data to obtain the men and women percentage in adults
+weapon_by_gender_adults=crime_data.groupby(['ARMA','GENERO','GRUPO ETARIO'])['GENERO'].count().unstack().reset_index()
+weapon_by_gender_adults.drop(columns='NOT REPORTED',inplace=True)
+#Dropping NOT REPORTED rows
+index_names=weapon_by_gender_adults[weapon_by_gender_adults['GENERO'] == 'NOT REPORTED'].index
+weapon_by_gender_adults.drop(index_names,inplace=True)
+#Subsetting and then pivoting
+weapon_by_gender_adults=weapon_by_gender_adults[['ARMA','GENERO','ADULTS']]
+weapon_by_gender_adults=weapon_by_gender_adults.pivot(columns=('GENERO'),values='ADULTS',index='ARMA').reset_index()
+weapon_by_gender_adults.rename(columns={'ARMA':'WEAPON','FEMALE':'WOMEN','MALE':'MEN'},inplace=True)
 
-fig, ax=plt.subplots(dpi=150)
-sns.set_theme(style="whitegrid")
-sns.barplot(data=noweapon_by_gender,
-            x=noweapon_by_gender.VALUE,y=noweapon_by_gender["GENERO"])
-ax.set_ylabel('')
-ax.set_xlabel('# of reported crimes associated')
-ax.set_title('Crime reports by gender where no weapon was used against an adult')
+#For last the same data but for minors and adolescents 
 
-#%% Now same as before but trying to see if in the use of weapons there is any difference
+weapon_by_age_group=crime_data.groupby(['ARMA','GRUPO ETARIO'])['GRUPO ETARIO'].count().unstack().reset_index()
+weapon_by_age_group.drop(columns=['NOT REPORTED','ADULTS'],inplace=True)
+weapon_by_age_group.rename(columns={'ARMA':'WEAPON'},inplace=True)
+weapon_by_age_group_adults=pd.merge(weapon_by_gender_adults,weapon_by_age_group,how='inner',on='WEAPON')
+weapon_by_age_group_adults['TOTAL']=weapon_by_age_group_adults.iloc[:,1:].sum(axis=1)
 
-sharp_weapon_by_gender=crime_data.groupby(['GRUPO ETARIO','ARMA','GENERO'])['GENERO'].count().rename('VALUE').reset_index()
-sharp_weapon_by_gender=sharp_weapon_by_gender.query('`ARMA`=="SHARP WEAPON" & `GRUPO ETARIO`=="ADULTS"')
+#Loop to calculate the value/TOTAL column wise and obtain the percentage
+for i in range(1,5):
+    weapon_by_age_group_adults.iloc[:,i]=weapon_by_age_group_adults.iloc[:,i]/weapon_by_age_group_adults['TOTAL']*100
+weapon_by_age_group_adults.drop(columns='TOTAL',inplace=True)
+weapon_by_age_group_adults=weapon_by_age_group_adults.melt(id_vars='WEAPON')
+weapon_by_age_group_adults
 
-fig, ax=plt.subplots(dpi=150)
-sns.set_theme(style="whitegrid")
-sns.barplot(data=noweapon_by_gender,
-            x=noweapon_by_gender.VALUE,y=noweapon_by_gender["GENERO"])
-ax.set_ylabel('')
-ax.set_xlabel('# of reported crimes associated')
-ax.set_title('Crime reports by gender where no weapon was used against an adult')
+#Plotting
+g=sns.set_theme(style="darkgrid")
+g=sns.catplot(data=weapon_by_age_group_adults, x="variable", y="value",col="WEAPON"
+              , col_wrap=3,kind="bar", ci=None, height=3,aspect=2)
+(g.set_axis_labels("", "Percentage of cases")
+.set_titles("{col_name}",y=1,pad=-18, fontweight="bold",size=16)
+.set(ylim=(0, 100)))
 
-#%%
-
-weapon_by_gender=crime_data.groupby(['GRUPO ETARIO','ARMA','GENERO'])['GENERO'].count().rename('VALUE').reset_index()
-weapon_by_gender.query('`GRUPO ETARIO`=="ADULTS"')
-sns.catplot(data=weapon_by_gender, x="GENERO", y="VALUE",col="ARMA", col_wrap=2,
-            saturation=.5,kind="bar", ci=None)
-
-#%%
-#FECHA
+#%% FECHA
 # Making a distribution plot where crimes rate are displayed by month,
 
 crime_by_year=crime_data.groupby([crime_data['FECHA'].dt.year,
@@ -273,8 +278,11 @@ crime_by_year.rename('VALUE',inplace= True)
 crime_by_year.index.names=['YEAR', 'MONTH']
 crime_by_year=crime_by_year.reset_index()
 
+# Calculating the average amount of crime reports per month
+crime_by_month=crime_by_year.groupby('MONTH')['VALUE'].mean().reset_index()
 
-crime_by_month=crime_by_year.groupby('MONTH')['VALUE'].mean()
+
+# Replacing month number for month's name in short format 
 dict={1:'Jan',2:'Feb',3:'Mar',4:'Apr',5:'May',6:'Jun'
       ,7:'Jul',8:'Aug',9:'Sep',10:'Oct',11:'Nov',12:'Dec'}
 crime_by_year.replace({'MONTH':dict},inplace=True)
@@ -289,8 +297,7 @@ for year, ax in g.axes_dict.items():
     #Change titles
     ax.text(0.85,0.85,year, transform=ax.transAxes, fontweight="bold",size=20)
     #Add preexisting
-    sns.lineplot(
-    data=crime_by_year[crime_by_year['YEAR']<2021], x="MONTH", y="VALUE", units="YEAR",
+    sns.lineplot(data=crime_by_year[crime_by_year['YEAR']<2021], x="MONTH", y="VALUE", units="YEAR",
     estimator=None, color=".7", linewidth=1, ax=ax)
     ax.grid(axis='y')
 
@@ -298,6 +305,54 @@ ax.set_xticks(ax.get_xticks()[::2])
 g.set_titles('')
 g.set_axis_labels("", "Crime reports")
 g.tight_layout()
+
+# Calculating the average amount of crime reports per month
+crime_by_month.replace({'MONTH':dict},inplace=True)
+fig, ax=plt.subplots(dpi=100)
+sns.lineplot(data=crime_by_month,y='VALUE',x='MONTH')
+ax.set_title('Average report per month')
+ax.set_ylabel('# of reports')
+ax.set_xlabel('')
+ax.set_ylim(ymin=0,ymax=2500)
+
+#%%
+# Now create a new column for storing the percentage change from previous month for a new plot
+
+crime_by_year['PERCENTAGE_CHANGE']=crime_by_year['VALUE'].pct_change()*100
+
+Percentage_change_by_month=pd.DataFrame(
+    {'DATE':pd.to_datetime(crime_by_year['YEAR'].astype(str)+'-'+crime_by_year['MONTH'].astype(str)+'-1'),
+    'PERCENTAGE_CHANGE':crime_by_year['PERCENTAGE_CHANGE']}
+)
+
+sns.set_theme(style="ticks")
+fig, ax=plt.subplots(dpi=100)
+ax=sns.lineplot(data=Percentage_change_by_month,y='PERCENTAGE_CHANGE',x='DATE')
+ax.set_title('Increase of crime reports per month')
+ax.set_ylabel('% of increase from previous month')
+ax.set_xlabel('')
+ax.xaxis.set_minor_locator(mdates.MonthLocator(bymonth=7))
+ax.xaxis.set_major_locator(mdates.MonthLocator(bymonth=1))
+ax.xaxis.set_major_formatter(mdates.DateFormatter("%Y-%m"))
+ax.figure.autofmt_xdate()
+
+# Fiting a linear regresion model to draw a trend line 
+
+coefs= np.polyfit(Percentage_change_by_month['PERCENTAGE_CHANGE'].dropna().index.values,Percentage_change_by_month['PERCENTAGE_CHANGE'].dropna(), 1)
+func_trend=np.poly1d(coefs) #Function to use coefs with any input
+date_pos=Percentage_change_by_month['DATE'].iloc[[1,-1]] # First and last date value in the dataset
+
+extra_months=12 # Adding extra month for projection 
+for i in range(1,extra_months):
+    aux=[Percentage_change_by_month['DATE'].iloc[-1]+pd.DateOffset(months=i)] # Adds offset of one month to the last value
+    date_pos=date_pos.append(pd.Series(aux,index=[date_pos.index.values.max()+1])) # Append new month to series while maintaining index needed for plotting
+percentage_pos=Percentage_change_by_month['PERCENTAGE_CHANGE'].iloc[[1,-1]]# Percentages value
+ax=sns.lineplot(x=date_pos,y=func_trend(date_pos.index.values), style=True, dashes=[(2,2)])
+ax.legend(['Percentage increase trend','Linear trend'])
+ax.get_legend
+#sns.regplot(data=Percentage_change_by_month,y='PERCENTAGE_CHANGE',x='DATE')
+#plt.show()
+
 
 #%% GENERO
 # Plotting to check which gender is the most affected
@@ -335,7 +390,7 @@ crime_by_age_group=crime_data.groupby('GRUPO ETARIO').size().reset_index(name='V
 crime_by_age_group['VALUE']=crime_by_age_group['VALUE']/crime_by_age_group['VALUE'].sum()*100
 
 
-fig, ax=plt.subplots(dpi=150,figsize=(7,2))
+fig, ax=plt.subplots(dpi=150,figsize=(7,4))
 sns.set_theme(style="whitegrid")
 sns.barplot(data=crime_by_age_group,
             x='GRUPO ETARIO',y='VALUE',
@@ -350,7 +405,7 @@ for bar in ax.patches:
                     size=12, xytext=(0, 5),
                     textcoords='offset points',fontweight="bold")
 
-ax.set_ylim(top=100)
+ax.set_ylim(top=60)
 ax.yaxis.set_major_formatter(PercentFormatter(100))
 ax.set_title('Victim age group  distribution in crime reports')
 ax.set_xlabel("")
@@ -401,15 +456,3 @@ ax.set_xlabel("")
 ax.set_ylabel("")
 plt.show()
 
-# %%
-
-
-# %%
-
-# %%
-
-# %%
-
-# %%
-
-# %%
