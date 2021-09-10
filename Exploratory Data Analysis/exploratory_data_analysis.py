@@ -27,10 +27,8 @@ from matplotlib.ticker import PercentFormatter
 import matplotlib.dates as mdates
 
 
-
-
 crime_data = pd.read_csv('database.csv')  # importing the database
-
+ExcelFilesFolder="~\Documents\DOCS\Ciencia de datos - Proyectos\Portfolio\Colombia-Sex-Crimes\PowerBI - Tableau\Databases\\"
 #%%
 
 # =============================================================================
@@ -108,6 +106,7 @@ crime_data=crime_data[crime_data["CANTIDAD"]!=86]
 
 #DEPARTAMENTO
 
+
 crime_by_department=crime_data.groupby(['DEPARTAMENTO','GENERO'])['GENERO'].count().unstack()
 crime_by_department=crime_by_department.fillna(0)
 
@@ -117,7 +116,7 @@ crime_by_department=crime_by_department.sort_values('TOTAL',ascending=False) # S
 
 # Horizontal bar graph showing the distribution of crimes by department and gender
 sns.set_theme(style="ticks")
-fig,ax = plt.subplots(figsize=(7,7),dpi=100)
+fig, ax=plt.subplots(figsize=(7,7),dpi=100)
 sns.set_color_codes("muted")
 sns.barplot(x="NOT REPORTED",y=crime_by_department.index.values,
             data=crime_by_department,color='y',label='NOT REPORTED',
@@ -176,6 +175,8 @@ sns.barplot(x="TOTAL",y=total_crime_per1000.index.values,data=total_crime_per100
 ax.set_xlabel("# of reported crimes per 1000 inhabitants")
 ax.set_title("Crime reports distribution by department per 1000 inhabitants")
 
+
+
 #%%
 
 #MUNICIPIO
@@ -208,13 +209,9 @@ ax.set_title("Top #10 of municipalities with highest crime reports")
 #%%
 # ARMA
 # Making a plot of the most used weapons
-
-weapons_total=crime_data.groupby('ARMA')['ARMA'].count()
-weapons_total.sort_values(inplace=True,ascending=False)
-weapons_total.rename(index=dict,inplace=True)
 fig, ax=plt.subplots(dpi=150)
 sns.set_theme(style="whitegrid")
-sns.barplot(x=weapons_total,y=weapons_total.index.astype(str))
+sns.countplot(y=crime_data['ARMA'],order=crime_data['ARMA'].value_counts().index)
 ax.set_ylabel('')
 ax.set_xlabel('# of reported crimes associated with the weapon')
 ax.set_title('Weapon usage in crimes')
@@ -315,7 +312,6 @@ ax.set_ylabel('# of reports')
 ax.set_xlabel('')
 ax.set_ylim(ymin=0,ymax=2500)
 
-#%%
 # Now create a new column for storing the percentage change from previous month for a new plot
 
 crime_by_year['PERCENTAGE_CHANGE']=crime_by_year['VALUE'].pct_change()*100
@@ -325,10 +321,10 @@ Percentage_change_by_month=pd.DataFrame(
     'PERCENTAGE_CHANGE':crime_by_year['PERCENTAGE_CHANGE']}
 )
 
-sns.set_theme(style="ticks")
+#Plotting first the increasing percentage line
 fig, ax=plt.subplots(dpi=100)
-ax=sns.lineplot(data=Percentage_change_by_month,y='PERCENTAGE_CHANGE',x='DATE')
-ax.set_title('Increase of crime reports per month')
+ax.plot(Percentage_change_by_month['DATE'],Percentage_change_by_month['PERCENTAGE_CHANGE'])
+ax.set_title('Percentage increase of crime reports per month')
 ax.set_ylabel('% of increase from previous month')
 ax.set_xlabel('')
 ax.xaxis.set_minor_locator(mdates.MonthLocator(bymonth=7))
@@ -342,16 +338,15 @@ coefs= np.polyfit(Percentage_change_by_month['PERCENTAGE_CHANGE'].dropna().index
 func_trend=np.poly1d(coefs) #Function to use coefs with any input
 date_pos=Percentage_change_by_month['DATE'].iloc[[1,-1]] # First and last date value in the dataset
 
-extra_months=12 # Adding extra month for projection 
-for i in range(1,extra_months):
+extra_months=12 # Extra months for projection 
+for i in range(1,extra_months): 
     aux=[Percentage_change_by_month['DATE'].iloc[-1]+pd.DateOffset(months=i)] # Adds offset of one month to the last value
     date_pos=date_pos.append(pd.Series(aux,index=[date_pos.index.values.max()+1])) # Append new month to series while maintaining index needed for plotting
-percentage_pos=Percentage_change_by_month['PERCENTAGE_CHANGE'].iloc[[1,-1]]# Percentages value
-ax=sns.lineplot(x=date_pos,y=func_trend(date_pos.index.values), style=True, dashes=[(2,2)])
-ax.legend(['Percentage increase trend','Linear trend'])
-ax.get_legend
-#sns.regplot(data=Percentage_change_by_month,y='PERCENTAGE_CHANGE',x='DATE')
-#plt.show()
+
+#Plotting first the increasing percentage line
+ax.plot(date_pos,func_trend(date_pos.index.values),linestyle = 'dashed',label='Trendline')
+ax.legend()
+
 
 
 #%% GENERO
@@ -454,5 +449,3 @@ ax.yaxis.set_major_formatter(PercentFormatter(100))
 ax.set_title('TOP #5 law ingringment')
 ax.set_xlabel("")
 ax.set_ylabel("")
-plt.show()
-
