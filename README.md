@@ -14,5 +14,5 @@ First the data is partially cleaned and prepared in SQL. The database is exporte
 - [Python script](https://github.com/AnthonyAtencioM/Colombia-Sex-Crimes/blob/main/Exploratory%20Data%20Analysis/exploratory_data_analysis.py)
 - [Jupyter notebook](https://github.com/AnthonyAtencioM/Colombia-Sex-Crimes/blob/main/Exploratory%20Data%20Analysis/Notebook_EDA.ipynb)
 - [Tableau dashboard](https://public.tableau.com/views/SexualCrimesColombiaPortfolio/Mapa?:language=en-US&publish=yes&:display_count=n&:origin=viz_share_link) 
-- PowerBI dashboard
+- [PowerBI dashboard](https://github.com/AnthonyAtencio/Colombia-Sexual-Crimes/blob/main/Tableau%20and%20PowerBI/Dashboard%20-%20PowerBI.pbix)
 
