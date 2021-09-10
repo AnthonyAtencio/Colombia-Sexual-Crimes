@@ -28,7 +28,6 @@ import matplotlib.dates as mdates
 
 
 crime_data = pd.read_csv('database.csv')  # importing the database
-ExcelFilesFolder="~\Documents\DOCS\Ciencia de datos - Proyectos\Portfolio\Colombia-Sex-Crimes\PowerBI - Tableau\Databases\\"
 #%%
 
 # =============================================================================
