@@ -28,6 +28,7 @@ import matplotlib.dates as mdates
 
 
 crime_data = pd.read_csv('database.csv')  # importing the database
+
 #%%
 
 # =============================================================================
@@ -59,18 +60,6 @@ crime_data.dropna(inplace=True)
 
 # All Colombia's departments names are in the dataset without any misspelled duplicate.
 set(crime_data["DEPARTAMENTO"])
-
-# Changing columns to category type
-
-columns = ["DEPARTAMENTO", "MUNICIPIO", "GENERO", "GRUPO ETARIO",
-           "DELITO", "ARMA", "CANTIDAD", "ARTICULO - DELITO", "MUNICIPIO-CODIGO DANE"]
-for i in columns:
-    crime_data[i] = crime_data[i].astype("category")
-
-#CODIGO.DANE should be a factor as it is an ID assigned for each city/municipality.
-#before hand it will be converted to INT so remove its decimals
-crime_data["CODIGO DANE"] = crime_data["CODIGO DANE"].astype(
-    int).astype("category")
 
 #FECHA is changed from factor to date class
 crime_data["FECHA"] = pd.to_datetime(crime_data["FECHA"])
