@@ -10,9 +10,9 @@ First the data is partially cleaned and prepared in SQL. The database is exporte
 
 ## Contents
 
-- [SQL query script](https://github.com/AnthonyAtencioM/Colombia-Sex-Crimes/blob/main/SQL/SQL%20-%20Cleaning%20Data.sql)  
-- [Python script](https://github.com/AnthonyAtencioM/Colombia-Sex-Crimes/blob/main/Exploratory%20Data%20Analysis/exploratory_data_analysis.py)
-- [Jupyter notebook](https://github.com/AnthonyAtencioM/Colombia-Sex-Crimes/blob/main/Exploratory%20Data%20Analysis/Notebook_EDA.ipynb)
-- [Tableau dashboard](https://public.tableau.com/views/SexualCrimesColombiaPortfolio/Mapa?:language=en-US&publish=yes&:display_count=n&:origin=viz_share_link) 
+- [SQL query script](https://github.com/AnthonyAtencio/Colombia-Sexual-Crimes/blob/main/SQL/SQL%20-%20Cleaning%20Data.sql)  
+- [Python script](https://github.com/AnthonyAtencio/Colombia-Sexual-Crimes/blob/main/Exploratory%20Data%20Analysis/exploratory_data_analysis.py)
+- [Jupyter notebook](https://github.com/AnthonyAtencio/Colombia-Sexual-Crimes/blob/main/Exploratory%20Data%20Analysis/Notebook_EDA.ipynb)
+- [Tableau dashboard](https://public.tableau.com/views/SexualCrimesColombiaPortfolio/Dashboard1?:language=en-US&:display_count=n&:origin=viz_share_link) 
 - [PowerBI dashboard](https://github.com/AnthonyAtencio/Colombia-Sexual-Crimes/blob/main/Tableau%20and%20PowerBI/Dashboard%20-%20PowerBI.pbix)
 
